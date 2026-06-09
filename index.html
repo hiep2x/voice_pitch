@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voice Pitch - Real-Time Voice Pitch Tracker</title>
+  <meta name="description" content="Voice Pitch is a real-time voice pitch tracker, voice tuner, and vocal range analyzer for singers, vocal learners, musicians, and anyone who wants to understand their voice better." />
+  <meta name="keywords" content="voice pitch, pitch tracker, voice tuner, vocal range, singing app, note detector, pitch monitor, vocal training, pitch detector, voice analyzer" />
+  <style>
+    :root {
+      --bg: #05070b;
+      --card: rgba(255, 255, 255, 0.07);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text: #f5f7fb;
+      --muted: #aeb7c7;
+      --accent: #36d1dc;
+      --accent-2: #5b86e5;
+      --success: #7cf7c4;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(54, 209, 220, 0.25), transparent 35%),
+        radial-gradient(circle at 80% 0%, rgba(91, 134, 229, 0.25), transparent 35%),
+        linear-gradient(180deg, #05070b 0%, #0b1020 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .container {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 28px 0;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      font-size: 20px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 30px rgba(54, 209, 220, 0.25);
+      font-size: 22px;
+    }
+
+    .hero {
+      padding: 72px 0 64px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--success);
+      font-size: 14px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 auto 20px;
+      max-width: 900px;
+      font-size: clamp(42px, 7vw, 78px);
+      line-height: 1.03;
+      letter-spacing: -2.5px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff 10%, var(--accent) 45%, var(--accent-2) 90%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 0 auto 32px;
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    .cta-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      border: none;
+      box-shadow: 0 16px 40px rgba(54, 209, 220, 0.22);
+    }
+
+    section {
+      padding: 56px 0;
+    }
+
+    .section-heading {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .section-heading h2 {
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.12;
+      letter-spacing: -1.2px;
+      margin: 0 0 12px;
+    }
+
+    .section-heading p {
+      max-width: 700px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--card-border);
+      background: var(--card);
+      border-radius: 24px;
+      padding: 26px;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+    }
+
+    .icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: rgba(54, 209, 220, 0.12);
+      color: var(--accent);
+      font-size: 24px;
+      margin-bottom: 18px;
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 21px;
+      letter-spacing: -0.3px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .panel {
+      border: 1px solid var(--card-border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      border-radius: 30px;
+      padding: 34px;
+      backdrop-filter: blur(18px);
+    }
+
+    .panel h2 {
+      margin: 0 0 16px;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.1;
+      letter-spacing: -1.2px;
+    }
+
+    .panel p, .panel li {
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 18px 0 0;
+    }
+
+    .visual {
+      min-height: 380px;
+      border-radius: 30px;
+      border: 1px solid var(--card-border);
+      background:
+        linear-gradient(135deg, rgba(54, 209, 220, 0.18), rgba(91, 134, 229, 0.1)),
+        rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .chart {
+      width: 82%;
+      height: 190px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.13);
+      background: rgba(0, 0, 0, 0.28);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 44px 38px;
+    }
+
+    .wave {
+      position: absolute;
+      left: -5%;
+      right: -5%;
+      top: 45%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+      border-radius: 999px;
+      filter: drop-shadow(0 0 16px rgba(54,209,220,0.8));
+      transform: rotate(-2deg);
+    }
+
+    .note {
+      position: absolute;
+      bottom: 34px;
+      right: 34px;
+      padding: 14px 18px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 800;
+      font-size: 28px;
+    }
+
+    .contact {
+      text-align: center;
+      border: 1px solid var(--card-border);
+      background: var(--card);
+      border-radius: 30px;
+      padding: 42px 24px;
+      backdrop-filter: blur(18px);
+    }
+
+    .contact h2 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      letter-spacing: -0.8px;
+    }
+
+    .contact p {
+      color: var(--muted);
+      margin: 0 0 20px;
+    }
+
+    footer {
+      padding: 34px 0 46px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .grid, .split { grid-template-columns: 1fr; }
+      .hero { padding-top: 48px; }
+      .visual { min-height: 300px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="logo">🎙️</div>
+        <span>Voice Pitch</span>
+      </div>
+      <a href="mailto:hiep3x@gmail.com">Contact</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="badge">Real-time voice pitch tracker</div>
+        <h1>Understand your voice with <span class="gradient-text">live pitch analysis</span>.</h1>
+        <p>
+          Voice Pitch helps singers, vocal learners, musicians, and voice enthusiasts track pitch in real time,
+          discover vocal range, record practice sessions, and review detailed voice analysis.
+        </p>
+        <div class="cta-row">
+          <a class="button primary" href="mailto:hiep3x@gmail.com">Contact Developer</a>
+          <a class="button" href="#features">Explore Features</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Built for singing practice and voice tracking</h2>
+          <p>Simple, visual, and useful tools to help you monitor pitch, note accuracy, and vocal progress.</p>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="icon">🎵</div>
+            <h3>Real-Time Pitch Tracking</h3>
+            <p>See your current note, pitch frequency, and voice movement instantly while singing or speaking.</p>
+          </div>
+
+          <div class="card">
+            <div class="icon">🎚️</div>
+            <h3>Voice Tuner</h3>
+            <p>Use visual pitch feedback to understand whether your voice is sharp, flat, or close to the target note.</p>
+          </div>
+
+          <div class="card">
+            <div class="icon">📈</div>
+            <h3>Vocal Range Analysis</h3>
+            <p>Track the lowest and highest notes reached in your sessions and monitor your vocal range over time.</p>
+          </div>
+
+          <div class="card">
+            <div class="icon">⏺️</div>
+            <h3>Record Sessions</h3>
+            <p>Record practice sessions while tracking pitch so you can replay and review your voice later.</p>
+          </div>
+
+          <div class="card">
+            <div class="icon">📊</div>
+            <h3>Session History</h3>
+            <p>Review previous sessions, check pitch trends, and follow your singing progress with useful statistics.</p>
+          </div>
+
+          <div class="card">
+            <div class="icon">🔒</div>
+            <h3>Background Measurement</h3>
+            <p>Optional background measurement support helps continue voice tracking when enabled in the app.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container split">
+        <div class="panel">
+          <h2>A practical pitch monitor for daily vocal practice.</h2>
+          <p>
+            Voice Pitch is designed to make voice analysis easy to understand. The app focuses on clean real-time
+            feedback, clear pitch charts, session review, and vocal range tracking.
+          </p>
+          <ul>
+            <li>Live note and frequency detection</li>
+            <li>Pitch chart and voice timeline</li>
+            <li>Highest and lowest note tracking</li>
+            <li>Practice recording and playback</li>
+            <li>Progress review through session history</li>
+          </ul>
+        </div>
+
+        <div class="visual" aria-label="Pitch chart illustration">
+          <div class="chart">
+            <div class="wave"></div>
+          </div>
+          <div class="note">A4</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="contact">
+          <h2>Contact</h2>
+          <p>For support, feedback, business inquiries, or app-related questions, please contact:</p>
+          <a class="button primary" href="mailto:hiep3x@gmail.com">hiep3x@gmail.com</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      © 2026 Voice Pitch. All rights reserved.
+    </div>
+  </footer>
+</body>
+</html>
